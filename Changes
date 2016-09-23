@@ -1,0 +1,6 @@
+Revision history for Perl extension perl-hpeOneView.
+
+0.01  Wed Sep 21 13:11:08 2016
+	- original version; created by h2xs 1.23 with options
+		-AX -n perl-hpeOneView
+
