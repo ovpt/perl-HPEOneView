@@ -4,7 +4,9 @@ use strict;
 use warnings;
 use parent 'LWP::UserAgent';
 use HTTP::Headers;
+use HTTP::Request;
 use HPEOneView::Util::Message;
+use Data::Dumper;
 
 
 sub new {
@@ -22,7 +24,6 @@ sub new {
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
     $$self{msg} = HPEOneView::Util::Message->new(producer => lc(ref($self)),
                                                  message_level => $$self{message_level});
-    
     
     return bless($self, $class);
 }
@@ -42,31 +43,41 @@ sub set_auth_token {
 }
 
 sub get {
-    my $self = shift;
-    my $url = shift;
+    my ($self, $url) = @_;
     my $resp = $self->SUPER::get($url);
-    $self->generate_output($resp);
+    $self->out($resp);
     return $resp;
 }
 
-sub generate_output {
-    my $self = shift;
-    my $resp = shift;
+sub post {
+    my ($self, $url, $body, $header) = @_;
+    my $resp = $self->SUPER::post($url,
+                                  Content=>$body,
+                                  'Content-Type'=>'application/json',
+                                  'x_api_version'=>$$self{x_api_version});
+    print Dumper($resp);
+    $self->out($resp);
+    return $resp;
+}
+
+sub out {
+    my ($self, $resp) = @_;
     my $method = $$resp{_request}{_method};
     my $url = $$resp{_request}{_uri_canonical};
     my $content = $resp->content;
     my $response_code = $resp->code;
     my $response_message = $resp->message;
     my $request_body = $$resp{_request}{_content};
+    my $headers = $$resp{_request}{_headers}->as_string; 
 
     if ($resp->is_success) {
         $$self{msg}->info($method.' '.$url.' '.$response_code.' '.$response_message);
-        $$self{msg}->debug('headers: '.$$resp{_request}{_headers}->as_string);
+        $$self{msg}->debug('headers: '.$headers);
         $$self{msg}->debug('request: '.$request_body);
         $$self{msg}->debug('response: '.$content);
     } else {
         $$self{msg}->error($method.' '.$url.' '.$response_code.' '.$response_message);
-        $$self{msg}->error('headers: '.$$resp{_request}{_headers}->as_string);
+        $$self{msg}->error('headers: '.$headers);
         $$self{msg}->error('request: '.$request_body);
         $$self{msg}->error('response: '.$content);
     }
