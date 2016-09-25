@@ -6,16 +6,20 @@ use parent 'LWP::UserAgent';
 use HTTP::Headers;
 use HTTP::Request;
 use HPEOneView::Util::Message;
+use HPEOneView::Clients::Settings::Version;
 use Data::Dumper;
 
 
 sub new {
     my ($class, %args) = @_;
-    my $self = $class->SUPER::new(%args);
-    $$self{def_headers} = HTTP::Headers->new('User-Agent' => 'perl-HPEOneView',
+    my $default_headers = HTTP::Headers->new('User-Agent' => 'perl-HPEOneView',
                                              'Accept' => 'application/json',
                                              'Content-Type' => 'application/json');
+    $args{default_headers} = $default_headers;
+    $args{ssl_opts} = (verify_hostname=>0, SSL_verify_mode=>0x00);
 
+    my $self = $class->SUPER::new(%args);
+    $$self{def_headers} = $default_headers;
     $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : 300;;
     $$self{auth} = defined $args{auth} ? $args{auth} : '';
     $$self{hostname} = defined $args{hostname} ? $args{hostname} : '';
@@ -24,7 +28,6 @@ sub new {
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
     $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name(),
                                                  message_level => $$self{message_level});
-    
     return bless($self, $class);
 }
 
@@ -36,6 +39,7 @@ sub default_api_version {
         $$self{def_headers}{x_api_version} = $version;
     }
 }
+
 
 sub set_auth_token {
     my $self = shift;
@@ -67,7 +71,6 @@ sub post {
     my ($self, $url, $body, $header) = @_;
     my $resp = $self->SUPER::post($url,
                                   Content=>$body,
-                                  'Content-Type'=>'application/json',
                                   'x_api_version'=>$$self{x_api_version});
     $self->out($resp);
     return $resp;
