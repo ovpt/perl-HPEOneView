@@ -22,7 +22,7 @@ sub new {
     $$self{protocol} = defined $args{protocol} ? $args{protocol} : 'https';
     $$self{root_url} = defined $args{hostname} ? $$self{protocol}.'://'.$$self{hostname} : '';
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
-    $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name()),
+    $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name(),
                                                  message_level => $$self{message_level});
     
     return bless($self, $class);
