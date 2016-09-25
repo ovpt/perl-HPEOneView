@@ -22,7 +22,7 @@ sub new {
     $$self{protocol} = defined $args{protocol} ? $args{protocol} : 'https';
     $$self{root_url} = defined $args{hostname} ? $$self{protocol}.'://'.$$self{hostname} : '';
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
-    $$self{msg} = HPEOneView::Util::Message->new(producer => lc(ref($self)),
+    $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name()),
                                                  message_level => $$self{message_level});
     
     return bless($self, $class);
@@ -42,6 +42,20 @@ sub set_auth_token {
     $$self{def_headers}{auth} = shift if @_;
 }
 
+sub get_package_short_name {
+    my $self = shift;
+    my @modules = split('::', ref($self));
+    my @short_names;
+    foreach (0..$#modules) {
+        if ($_ == $#modules) {
+            push @short_names, $modules[$_];
+        } else {
+            push @short_names, substr($modules[$_],0,1);
+        }
+    }
+    return join('::', @short_names);
+}
+
 sub get {
     my ($self, $url) = @_;
     my $resp = $self->SUPER::get($url);
@@ -55,7 +69,6 @@ sub post {
                                   Content=>$body,
                                   'Content-Type'=>'application/json',
                                   'x_api_version'=>$$self{x_api_version});
-    print Dumper($resp);
     $self->out($resp);
     return $resp;
 }
