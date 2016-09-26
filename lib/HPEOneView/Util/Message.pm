@@ -21,7 +21,7 @@ sub p {
                      info => '+',
                      warn => '-',
                      error => '!');
-    $msg =~ s/\n//g;
+    $msg =~ s/\n/ /g;
     print "[$identifer{$level}] $$self{producer} $msg\n";
 }
 

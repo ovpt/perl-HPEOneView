@@ -12,5 +12,4 @@ sub get_version {
     return $self->get($uri);
 }
 
-
 1;

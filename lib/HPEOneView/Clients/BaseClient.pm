@@ -3,24 +3,26 @@ package HPEOneView::Clients::BaseClient;
 use strict;
 use warnings;
 use parent 'LWP::UserAgent';
+use JSON::Parse 'parse_json';
 use HTTP::Headers;
 use HTTP::Request;
 use HPEOneView::Util::Message;
-use HPEOneView::Clients::Settings::Version;
+use HPEOneView::Behaviors::Settings::Version;
+
 use Data::Dumper;
 
 
 sub new {
     my ($class, %args) = @_;
+    my $default_ssl_opts = {'verify_hostname'=>0, 'SSL_verify_mode'=>0x00};
     my $default_headers = HTTP::Headers->new('User-Agent' => 'perl-HPEOneView',
                                              'Accept' => 'application/json',
                                              'Content-Type' => 'application/json');
     $args{default_headers} = $default_headers;
-    $args{ssl_opts} = (verify_hostname=>0, SSL_verify_mode=>0x00);
+    $args{ssl_opts} = defined $args{ssl_opts} ? $args{ssl_opts} : $default_ssl_opts;
 
     my $self = $class->SUPER::new(%args);
     $$self{def_headers} = $default_headers;
-    $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : 300;;
     $$self{auth} = defined $args{auth} ? $args{auth} : '';
     $$self{hostname} = defined $args{hostname} ? $args{hostname} : '';
     $$self{protocol} = defined $args{protocol} ? $args{protocol} : 'https';
@@ -28,18 +30,32 @@ sub new {
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
     $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name(),
                                                  message_level => $$self{message_level});
+    $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : $self->default_api_version();
     return bless($self, $class);
 }
 
 sub default_api_version {
-    my $self = shift;
-    my $version = shift if @_;
-    if (defined $version) {
-        $$self{x_api_version} = $version;
-        $$self{def_headers}{x_api_version} = $version;
+    my $self = shift;    
+    if (@_) {
+        $$self{x_api_version} = shift;
+    } elsif ($$self{hostname}) {
+        my $current_api_version = $self->get_current_api_version();
+        $self->default_header('x_api_version'=>$current_api_version);
+        $$self{x_api_version} = $current_api_version;
     }
 }
 
+sub get_current_api_version {
+    my $self = shift;
+    my $uri = $$self{root_url}.'/rest/version';
+    my $resp = $self->get($uri);
+    my $current_api_version = 0;
+    if ($resp->is_success) {
+        my $json = parse_json($resp->content);
+        $current_api_version = $$json{currentVersion};
+    }
+    return $current_api_version;
+}
 
 sub set_auth_token {
     my $self = shift;
@@ -69,9 +85,14 @@ sub get {
 
 sub post {
     my ($self, $url, $body, $header) = @_;
-    my $resp = $self->SUPER::post($url,
-                                  Content=>$body,
-                                  'x_api_version'=>$$self{x_api_version});
+    my @headers;
+    if ($header) {
+        push @headers, $header->flatten();
+    } else {
+        @headers = $self->default_headers->flatten();
+    }
+
+    my $resp = $self->SUPER::post($url, Content=>$body, @headers);
     $self->out($resp);
     return $resp;
 }
