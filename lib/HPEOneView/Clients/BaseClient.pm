@@ -9,8 +9,6 @@ use HTTP::Request;
 use HPEOneView::Util::Message;
 use HPEOneView::Behaviors::Settings::Version;
 
-use Data::Dumper;
-
 
 sub new {
     my ($class, %args) = @_;
@@ -24,43 +22,18 @@ sub new {
     my $self = $class->SUPER::new(%args);
     $$self{def_headers} = $default_headers;
     $$self{auth} = defined $args{auth} ? $args{auth} : '';
+    $$self{userName} = defined $args{userName} ? $args{userName} : '';
+    $$self{password} = defined $args{password} ? $args{password} : '';
+    $$self{authLoginDomain} = defined $args{authLoginDomain} ? $args{authLoginDomain} : 'LOCAL';
+    $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : '';
     $$self{hostname} = defined $args{hostname} ? $args{hostname} : '';
-    $$self{protocol} = defined $args{protocol} ? $args{protocol} : 'https';
-    $$self{root_url} = defined $args{hostname} ? $$self{protocol}.'://'.$$self{hostname} : '';
+    $$self{root_url} = defined $args{hostname} ? 'https://'.$$self{hostname} : '';
     $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
     $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name(),
                                                  message_level => $$self{message_level});
-    $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : $self->default_api_version();
     return bless($self, $class);
 }
 
-sub default_api_version {
-    my $self = shift;    
-    if (@_) {
-        $$self{x_api_version} = shift;
-    } elsif ($$self{hostname}) {
-        my $current_api_version = $self->get_current_api_version();
-        $self->default_header('x_api_version'=>$current_api_version);
-        $$self{x_api_version} = $current_api_version;
-    }
-}
-
-sub get_current_api_version {
-    my $self = shift;
-    my $uri = $$self{root_url}.'/rest/version';
-    my $resp = $self->get($uri);
-    my $current_api_version = 0;
-    if ($resp->is_success) {
-        my $json = parse_json($resp->content);
-        $current_api_version = $$json{currentVersion};
-    }
-    return $current_api_version;
-}
-
-sub set_auth_token {
-    my $self = shift;
-    $$self{def_headers}{auth} = shift if @_;
-}
 
 sub get_package_short_name {
     my $self = shift;
