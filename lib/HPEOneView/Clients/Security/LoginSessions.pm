@@ -42,6 +42,7 @@ sub init {
     $$self{userName} = $args{userName} if (defined $args{userName});
     $$self{password} = $args{password} if (defined $args{password});
     $$self{authLoginDomain} = $args{authLoginDomain} if (defined $args{authLoginDomain});
+    $$self{root_url} = 'https://'.$$self{hostname} if ! $$self{root_url};
     
     # init auth token
     if (defined $args{auth}) {
