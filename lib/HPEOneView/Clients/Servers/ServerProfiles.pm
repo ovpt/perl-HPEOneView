@@ -1,4 +1,4 @@
-package HPEOneView::Clients::Servers::ServerHardware;
+package HPEOneView::Clients::Servers::ServerProfiles;
 
 use strict;
 use warnings;
@@ -8,9 +8,9 @@ use URI;
 use parent 'HPEOneView::Clients::Security::LoginSessions';
 
 
-my $uri = '/rest/server-hardware';
+my $uri = '/rest/server-profiles';
 
-sub get_server_hardware {
+sub get_server_profiles {
     my ($self, %query) = @_;
     my $_url = URI->new($$self{root_url}.$uri);
     $_url->query_form(%query);
