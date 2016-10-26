@@ -1,4 +1,4 @@
-package HPEOneView::Clients::Storage::StoragePools;
+package HPEOneView::Clients::Storage::StorageVolumes;
 
 use strict;
 use warnings;
@@ -8,9 +8,9 @@ use URI;
 use parent 'HPEOneView::Clients::Security::LoginSessions';
 
 
-my $uri = '/rest/storage-pools';
+my $uri = '/rest/storage-volumes';
 
-sub get_storage_systems {
+sub get_storage_volumes {
     my ($self, %query) = @_;
     my $_url = URI->new($$self{root_url}.$uri);
     $_url->query_form(%query);
