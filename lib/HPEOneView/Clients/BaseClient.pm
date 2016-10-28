@@ -6,7 +6,6 @@ use parent 'LWP::UserAgent';
 use JSON::Parse 'parse_json';
 use HTTP::Headers;
 use HTTP::Request;
-use HPEOneView::Util::Message;
 use HPEOneView::Behaviors::Settings::Version;
 
 
@@ -28,26 +27,11 @@ sub new {
     $$self{x_api_version} = defined $args{x_api_version} ? $args{x_api_version} : '';
     $$self{hostname} = defined $args{hostname} ? $args{hostname} : '';
     $$self{root_url} = defined $args{hostname} ? 'https://'.$$self{hostname} : '';
-    $$self{message_level} = defined $args{message_level} ? $args{message_level} : 'info';
-    $$self{msg} = HPEOneView::Util::Message->new(producer => $self->get_package_short_name(),
-                                                 message_level => $$self{message_level});
+    $$self{log_level} = defined $args{log_level} ? $args{log_level} : 'info';
+
     return bless($self, $class);
 }
 
-
-sub get_package_short_name {
-    my $self = shift;
-    my @modules = split('::', ref($self));
-    my @short_names;
-    foreach (0..$#modules) {
-        if ($_ == $#modules) {
-            push @short_names, $modules[$_];
-        } else {
-            push @short_names, substr($modules[$_],0,1);
-        }
-    }
-    return join('::', @short_names);
-}
 
 sub get {
     my ($self, $url) = @_;
@@ -81,15 +65,52 @@ sub out {
     my $headers = $$resp{_request}{_headers}->as_string; 
 
     if ($resp->is_success) {
-        $$self{msg}->info($method.' '.$url.' '.$response_code.' '.$response_message);
-        $$self{msg}->debug('headers: '.$headers);
-        $$self{msg}->debug('request: '.$request_body);
-        $$self{msg}->debug('response: '.$content);
+        $self->info($method.' '.$url.' '.$response_code.' '.$response_message);
+        $self->debug('headers: '.$headers);
+        $self->debug('request: '.$request_body);
+        $self->debug('response: '.$content);
     } else {
-        $$self{msg}->error($method.' '.$url.' '.$response_code.' '.$response_message);
-        $$self{msg}->error('headers: '.$headers);
-        $$self{msg}->error('request: '.$request_body);
-        $$self{msg}->error('response: '.$content);
+        $self->error($method.' '.$url.' '.$response_code.' '.$response_message);
+        $self->error('headers: '.$headers);
+        $self->error('request: '.$request_body);
+        $self->error('response: '.$content);
     }
 }
+
+sub p {
+    my $self = shift;
+    my $level = shift;
+    my $msg = shift;
+    my %identifer = (debug => '*',info => '+',warn => '-',error => '!');
+    my @lines = split('\n', $msg);
+    foreach (@lines) {
+       print "[$identifer{$level}] $_\n";
+    }
+}
+
+sub debug {
+    my $self = shift;
+    my $msg = shift;
+    $self->p('debug', $msg) if $$self{log_level} =~ /debug/i;
+}
+
+sub info {
+    my $self = shift;
+    my $msg = shift;
+    $self->p('info', $msg) if $$self{log_level} =~ /debug|info/i;
+}
+
+sub warn {
+    my $self = shift;
+    my $msg = shift;
+    $self->p('warn', $msg) if $$self{log_level} =~ /debug|info|warn/i;
+}
+
+sub error {
+    my $self = shift;
+    my $msg = shift;
+    $self->p('error', $msg) if $$self{log_level} =~ /debug|info|warn|error/i;
+}
+
+
 1;
