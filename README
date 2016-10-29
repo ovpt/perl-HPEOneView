@@ -16,6 +16,11 @@ INSTALLATION
 
 To install this module type the following:
 
+   # Set environment variables to connect to OneView and run some tests
+   export HPEOneView_hostname={oneview ip address or hostname}
+   export HPEOneView_username={ioneview username}
+   export HPEOneView_password={ioneview password}
+
    perl Makefile.PL
    make
    make test

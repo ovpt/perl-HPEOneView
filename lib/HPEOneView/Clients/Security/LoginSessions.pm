@@ -20,29 +20,36 @@ sub new {
         $$self{authLoginDomain} = $args{session}{authLoginDomain};
         $$self{x_api_version} = $args{session}{x_api_version};
         $$self{auth} = $args{session}{auth};
+        $$self{root_url} = 'https://'.$$self{hostname} if ! $$self{root_url};
+        $self->default_header('x-api-version'=>$$self{x_api_version});
+        $self->default_header(auth=>$$self{auth});   
     }
-    $self->init(%args);
+
+    if (defined $args{hostname} && defined $args{userName} && defined $args{password}) {
+        $self->init(%args);
+    }
+
+
     return bless($self, $class);
 }
 
 sub init {
     my ($self, %args) = @_;
-
-    # init x_api_version
-    if (defined $args{x_api_version}) {
-        $$self{x_api_version} = $args{x_api_version};
-    } elsif (! $$self{x_api_version} && $$self{hostname}) {
-        my $v = HPEOneView::Behaviors::Settings::Version->new(hostname=>$$self{hostname});
-        $$self{x_api_version} = $v->get_current_api_version;
-    }
-
-    $self->default_header('x-api-version'=>$$self{x_api_version});
-
     $$self{hostname} = $args{hostname} if (defined $args{hostname});
     $$self{userName} = $args{userName} if (defined $args{userName});
     $$self{password} = $args{password} if (defined $args{password});
     $$self{authLoginDomain} = $args{authLoginDomain} if (defined $args{authLoginDomain});
     $$self{root_url} = 'https://'.$$self{hostname} if ! $$self{root_url};
+
+    # init x_api_version
+    if (defined $args{x_api_version}) {
+        $$self{x_api_version} = $args{x_api_version};
+    } elsif ($$self{hostname}) {
+        my $v = HPEOneView::Behaviors::Settings::Version->new(hostname=>$$self{hostname});
+        $$self{x_api_version} = $v->get_current_api_version;
+    }
+
+    $self->default_header('x-api-version'=>$$self{x_api_version});
     
     # init auth token
     if (defined $args{auth}) {
@@ -59,6 +66,7 @@ sub init {
     }
 
     $self->default_header(auth=>$$self{auth});   
+    return $$self{auth};
 }
 
 sub create_session {
@@ -69,6 +77,22 @@ sub create_session {
     $body{password} = $args{password} if defined $args{password};
     $body{authLoginDomain} = $args{authLoginDomain} if defined $args{authLoginDomain};
     return $self->post($url, create_json(\%body));
+}
+
+sub auth {
+    my $self = shift;
+    return $$self{auth};
+}
+
+sub session {
+    my $self = shift;
+    my %session = (hostname => $$self{hostname},
+                   userName => $$self{userName},
+                   password => $$self{password},
+                   authLoginDomain => $$self{authLoginDomain},
+                   x_api_version => $$self{x_api_version},
+                   auth => $self->auth);
+    return \%session;
 }
 
 sub reconnect_session {
