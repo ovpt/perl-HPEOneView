@@ -13,8 +13,8 @@ ok(HPEOneView::Clients::Storage::StorageVolumes->new, 'create storage volumes in
 ok(HPEOneView::Clients::Storage::StorageVolumes->new(hostname=>$hostname, userName=>$username, password=>$password), 'create storage volumes instance with credentials');
 
 my $session = HPEOneView::Clients::Security::LoginSessions->new(hostname=>$hostname, userName=>$username, password=>$password);
-my $ss = HPEOneView::Clients::Storage::StorageVolumes->new(session=>$session->session);
-ok($ss->get_storage_volumes(), 'get storage volumes without query');
-ok($ss->get_storage_volumes(start=>0, count=>1), 'get storage volumes start=0,count=1');
+my $storage_volumes = HPEOneView::Clients::Storage::StorageVolumes->new(session=>$session->session);
+ok($storage_volumes->get_storage_volumes(), 'get storage volumes without query');
+ok($storage_volumes->get_storage_volumes(start=>0, count=>1), 'get storage volumes start=0,count=1');
 
 done_testing();
