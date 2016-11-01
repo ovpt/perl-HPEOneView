@@ -9,14 +9,25 @@ use HPEOneView::Clients::Storage::StoragePools;
 use HPEOneView::Behaviors::Activity::Tasks;
 
 
-sub create_volume {
-    my $self = shift;
-    my $resp = $self->create_volume();
-    if ($resp->is_success) {
-        my $json = parse_json($resp->content);
-    }
+use Data::Dumper;
 
-    # wait for task
+
+sub create_volume {
+    my ($self, $body) = @_;
+    $self->info("creating a volume");
+    my $resp = $self->create_storage_volume($body);
+    if ($resp->is_success) {
+        my $task_uri = '';
+        if ($resp->content) {
+            my $task = parse_json($resp->content);
+            $task_uri = $task->{uri};
+        } elsif ($resp->header('location')) {
+            $task_uri = $resp->header('location');
+        }
+
+        my $task_client = HPEOneView::Behaviors::Activity::Tasks->new(session=>$self->session);
+        return $task_client->wait_for_task($task_uri);
+    }
 }
 
 1;

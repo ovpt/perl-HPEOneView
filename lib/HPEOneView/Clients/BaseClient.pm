@@ -84,7 +84,8 @@ sub p {
     my %identifer = (debug => '*',info => '+',warn => '-',error => '!');
     my @lines = split('\n', $msg);
     foreach (@lines) {
-       print "[$identifer{$level}] $_\n";
+        my $time = localtime;
+        print "[$identifer{$level}] $time $_\n";
     }
 }
 
