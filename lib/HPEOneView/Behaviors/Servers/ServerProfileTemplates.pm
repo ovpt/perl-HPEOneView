@@ -1,18 +1,17 @@
-package HPEOneView::Behaviors::Storage::StorageVolumes;
+package HPEOneView::Behaviors::Servers::ServerProfileTemplates;
 
 use strict;
 use warnings;
 use JSON::Parse 'parse_json';
 use HTTP::Headers;
-use parent 'HPEOneView::Clients::Storage::StorageVolumes';
-use HPEOneView::Clients::Storage::StoragePools;
+use parent 'HPEOneView::Clients::Servers::ServerProfileTemplates';
 use HPEOneView::Behaviors::Activity::Tasks;
 
 
-sub create_volume {
+sub create_spt {
     my ($self, $body) = @_;
-    $self->info("creating a volume");
-    my $resp = $self->create_storage_volume($body);
+    $self->info("creating a server profile template");
+    my $resp = $self->create_server_profile_template($body);
     if ($resp->is_success) {
         my $task_uri = '';
         if ($resp->content) {
