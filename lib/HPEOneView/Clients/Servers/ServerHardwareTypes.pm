@@ -1,4 +1,4 @@
-package HPEOneView::Clients::Servers::ServerProfiles;
+package HPEOneView::Clients::Servers::ServerHardwareTypes;
 
 use strict;
 use warnings;
@@ -9,9 +9,9 @@ use HPEOneView::Uris::Servers;
 use parent 'HPEOneView::Clients::Security::LoginSessions';
 
 
-sub get_server_profiles {
+sub get_server_hardware_types {
     my ($self, %query) = @_;
-    my $_url = URI->new($$self{root_url}.$HPEOneView::Uris::Servers::SERVER_PROFILES);
+    my $_url = URI->new($$self{root_url}.$HPEOneView::Uris::Servers::SERVER_HARDWARE_TYPES);
     $_url->query_form(%query);
     return $self->get($_url);
 }
