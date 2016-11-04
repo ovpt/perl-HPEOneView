@@ -16,5 +16,11 @@ sub get_server_profiles {
     return $self->get($_url);
 }
 
+sub create_server_profile {
+    my ($self, $body) = @_;
+    my $_url = URI->new($$self{root_url}.$HPEOneView::Uris::Servers::SERVER_PROFILES);
+    return $self->post($_url, $body);
+}
+
 
 1;
