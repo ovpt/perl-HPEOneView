@@ -1,12 +1,9 @@
-#！ perl -w
+#！ /usr/bin/env perl
 
 use strict;
-use HPEOneView::Clients::BaseClient;
-use HPEOneView::Clients::Settings::Version;
-use HPEOneView::Clients::Settings::Appliance;
+use warnings;
 use HPEOneView::Clients::Security::LoginSessions;
 use HPEOneView::Clients::Servers::ServerHardware;
-
 use HPEOneView::Behaviors::Activity::Tasks;
 use HPEOneView::Behaviors::Servers::ServerProfiles;
 
@@ -15,7 +12,7 @@ my $hostname = '';
 my $username = '';
 my $password = '';
 # Set this to directory server name if use directory authorization
-# #my $login_domain = '';
+#my $login_domain = '';
 
 my $server_hardware_type_uri = '';
 my $enclosure_group_uri = '';

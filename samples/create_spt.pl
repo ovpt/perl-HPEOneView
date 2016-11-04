@@ -1,13 +1,9 @@
-#！ perl -w
+#！ /usr/bin/env perl
 
 use strict;
-use Data::Dumper;
-use HPEOneView::Clients::BaseClient;
-use HPEOneView::Clients::Settings::Version;
-use HPEOneView::Clients::Settings::Appliance;
+use warnings;
 use HPEOneView::Clients::Security::LoginSessions;
 use HPEOneView::Clients::Servers::ServerProfileTemplates;
-
 use HPEOneView::Behaviors::Servers::ServerProfileTemplates;
 use HPEOneView::Behaviors::Activity::Tasks;
 

@@ -1,15 +1,12 @@
-#！ perl -w
+#！ /usr/bin/env perl
 
 use strict;
-use JSON::Parse 'parse_json';
-use HPEOneView::Clients::BaseClient;
-use HPEOneView::Clients::Settings::Version;
-use HPEOneView::Clients::Settings::Appliance;
+use warnings;
+
 use HPEOneView::Clients::Security::LoginSessions;
 use HPEOneView::Clients::Storage::StorageSystems;
 use HPEOneView::Clients::Storage::StorageVolumes;
 use HPEOneView::Behaviors::Storage::StorageVolumes;
-use HPEOneView::Behaviors::Activity::Tasks;
 
 
 my $hostname = '';
