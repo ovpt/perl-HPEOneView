@@ -16,5 +16,11 @@ sub get_server_hardware {
     return $self->get($_url);
 }
 
+sub create_server_hardware {
+    my ($self, $body) = @_;
+    my $_url = URI->new($$self{root_url}.$HPEOneView::Uris::Servers::SERVER_HARDWARE);
+    return $self->post($_url, $body);
+}
+
 
 1;

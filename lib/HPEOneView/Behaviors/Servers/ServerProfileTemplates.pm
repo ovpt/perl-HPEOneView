@@ -26,4 +26,14 @@ sub create_spt {
     }
 }
 
+sub get_spt_by_name {
+    my ($self, $name) = @_;
+    if (! defined $name) {
+        $self->error('no server profile template name specified');
+        return 0;
+    }
+
+    return $self->get_server_profile_templates(filter=>qq("'name'='$name'"));
+}
+
 1;
