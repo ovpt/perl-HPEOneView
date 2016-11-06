@@ -23,5 +23,9 @@ sub create_server_profile_template {
     return $self->post($_url, $body);
 }
 
+sub update_server_profile_template {
+    my ($self, $uri, $body) = @_;
+    my $_url = URI->new($$self{root_url}.$uri);
+    return $self->put($_url, $body);
 
 1;
