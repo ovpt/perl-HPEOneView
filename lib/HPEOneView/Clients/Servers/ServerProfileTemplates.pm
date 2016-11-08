@@ -2,8 +2,8 @@ package HPEOneView::Clients::Servers::ServerProfileTemplates;
 
 use strict;
 use warnings;
-use JSON::Create 'create_json';
 use JSON::Parse 'parse_json';
+use JSON::Create 'create_json';
 use URI;
 use HPEOneView::Uris::Servers;
 use parent 'HPEOneView::Clients::Security::LoginSessions';
@@ -16,6 +16,11 @@ sub get_server_profile_templates {
     return $self->get($_url);
 }
 
+sub get_server_profile_template {
+    my ($self, $uri) = @_;
+    my $_url = URI->new($$self{root_url}.$uri);
+    return $self->get($_url);
+}
 
 sub create_server_profile_template {
     my ($self, $body) = @_;
@@ -26,7 +31,13 @@ sub create_server_profile_template {
 sub update_server_profile_template {
     my ($self, $uri, $body) = @_;
     my $_url = URI->new($$self{root_url}.$uri);
-    return $self->put($_url, $body);
+    my $json_current_spt = $self->get_server_profile_template($uri);
+    my $new_spt = parse_json($body);
+    if (defined $json_current_spt->{eTag}) {
+        $new_spt->{eTag} = $json_current_spt->{eTag}
+    }
+
+    return $self->put($_url, create_json($new_spt));
 }
 
 1;

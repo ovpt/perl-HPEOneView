@@ -54,6 +54,27 @@ sub post {
     return $resp;
 }
 
+sub put {
+    my ($self, $url, $body, $header) = @_;
+    my @headers;
+    if ($header) {
+        push @headers, $header->flatten();
+    } else {
+        @headers = $self->default_headers->flatten();
+    }
+
+    # set If-Match header
+    my $json = parse_json($body); 
+    if (defined $json->{eTag}) {
+        my $etag = $json->{eTag};
+        push @headers, {'If-Match' => $etag};
+    }
+
+    my $resp = $self->SUPER::put($url, Content=>$body, @headers);
+    $self->out($resp);
+    return $resp;
+}
+
 sub out {
     my ($self, $resp) = @_;
     my $method = $$resp{_request}{_method};

@@ -36,4 +36,22 @@ sub get_spt_by_name {
     return $self->get_server_profile_templates(filter=>qq("'name'='$name'"));
 }
 
+sub update_spt {
+    my ($self, $uri, $body) = @_;
+    $self->info("updating a server profile template");
+    my $resp = $self->update_server_profile_template($uri, $body);
+    if ($resp->is_success) {
+        my $task_uri = '';
+        if ($resp->content) {
+            my $task = parse_json($resp->content);
+            $task_uri = $task->{uri};
+        } elsif ($resp->header('location')) {
+            $task_uri = $resp->header('location');
+        }
+
+        my $task_client = HPEOneView::Behaviors::Activity::Tasks->new(session=>$self->session);
+        return $task_client->wait_for_task($task_uri);
+    }
+}
+
 1;
