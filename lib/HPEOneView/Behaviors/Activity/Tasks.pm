@@ -7,7 +7,6 @@ use JSON::Parse 'parse_json';
 use URI;
 use parent 'HPEOneView::Clients::Activity::Tasks';
 
-use Data::Dumper;
 
 sub wait_for_task {
     my ($self, $task_uri, $timeout, $interval) = @_;
