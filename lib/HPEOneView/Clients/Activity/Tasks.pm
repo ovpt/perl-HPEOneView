@@ -9,8 +9,6 @@ use HPEOneView::Uris::Activity;
 use parent 'HPEOneView::Clients::Security::LoginSessions';
 
 
-my $uri = '/rest/tasks';
-
 sub get_tasks {
     my ($self, %query) = @_;
     my $_url = URI->new($$self{root_url}.$HPEOneView::Uris::Activity::TASKS);
